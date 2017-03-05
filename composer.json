@@ -1,0 +1,24 @@
+{
+    "name": "tunis78/hms_signature",
+    "type": "roundcube-plugin",
+    "description": "hMailServer Signature Change for Roundcube. Plugin adds a possibility to change users signature using two methods (drivers) via Settings/Signature tab.",
+    "license": "GPLv3+",
+    "version": "1.0",
+    "authors": [
+        {
+            "name": "Andreas Tunberg",
+            "email": "andreas@tunberg.com",
+            "role": "Lead"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "http://plugins.roundcube.net"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "roundcube/plugin-installer": ">=0.1.3"
+    }
+}
