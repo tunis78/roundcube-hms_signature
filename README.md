@@ -2,6 +2,7 @@ hMailServer Signature Plugin for Roundcube
 ==========================================
 Plugin that adds a possibility to change users signature using two
 methods (drivers) via Settings/Signature tab.
+The HTML signature can be edited with the built-in HTML editor.
 
 Requirements
 ------------
@@ -13,6 +14,8 @@ How to install
 - Copy folder to *roundcube/plugin/hms_signature*
 - Config *config.inc.php.dist* and save as *config.inc.php*
 - Enable plugin in *roundcube/config/config.inc.php*
+- To upload images larger than 64 KB to the HTML signature,
+  *$config['hms_signature_image_size']* MUST be copied into the main *config.inc.php*
 
 Drivers
 -------
@@ -33,6 +36,10 @@ See config.inc.php.dist file for more info.
 
 Changelog
 ---------
+Version 1.1 (2017-03-18)
+- Added built-in HTML editor
+- Some CSS and design change
+
 Version 1.0 (2017-03-05)
 - First release
 

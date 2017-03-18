@@ -28,3 +28,14 @@ $config['hms_signature_remote_server'] = array(
 // Url to hm_rcsignature.php.
 $config['hms_signature_remote_url'] = 'http://hmailserver/PHPWebAdmin/hm_rcsignature.php';
 
+// Signature HTML editor
+// -----------------------
+// Use the built-in WYSIWYG HTML editor
+$config['hms_signature_htmleditor'] = false;
+
+// HTML signature image size
+// -----------------------
+// Max HTML signature image size in KB
+// Default: 64
+// This MUST be copied to the main config.inc.php to have any effect.
+$config['hms_signature_image_size'] = '64';

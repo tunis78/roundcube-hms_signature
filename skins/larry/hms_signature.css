@@ -5,3 +5,22 @@
 #settings-sections .signature.selected a {
     background-position: 6px -743px;
 }
+
+#signature-form textarea {
+    resize: both;
+    width: 99%;
+    min-width: 390px;
+}
+
+.hms.box {
+    height: 100%;
+}
+
+.hms.box .boxcontent{
+    overflow: auto;
+    max-height: calc(100% - 86px);
+}
+
+.ui-dialog.error {
+    z-index: 70000;
+}

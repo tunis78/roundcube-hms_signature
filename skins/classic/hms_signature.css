@@ -1,0 +1,9 @@
+#signature-form textarea {
+    resize: both;
+    width: 99%;
+    min-width: 390px;
+}
+
+body > #message {
+    z-index: 70000;
+}

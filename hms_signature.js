@@ -21,6 +21,12 @@ window.rcmail && rcmail.addEventListener('init', function(evt) {
         rcmail.set_busy(true, 'loading');
         rcmail.gui_objects.signatureform.submit();
     },true);
-
-    $('input:not(:hidden):first').focus();
+    if (rcmail.env.editor_config) {
+        rcmail.env.editor_config.extra_plugins = ['hr '];
+        rcmail.env.editor_config.extra_buttons = ['hr '];
+        rcmail.env.editor_config.disabled_plugins = ['searchreplace'];
+        rcmail.env.editor_config.disabled_buttons = ['searchreplace'];
+        rcmail.env.editor_config.spellcheck = 0;
+        rcube_text_editor(rcmail.env.editor_config, 'html');
+    }
 });

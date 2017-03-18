@@ -3,7 +3,7 @@
 /**
  * hMailServer Signature Plugin for Roundcube
  *
- * @version 1.0
+ * @version 1.1
  * @author Andreas Tunberg <andreas@tunberg.com>
  *
  * Copyright (C) 2017, Andreas Tunberg
@@ -48,7 +48,6 @@ class hms_signature extends rcube_plugin
 
     function init()
     {
-        
         $this->add_texts('localization/');
         $this->include_stylesheet($this->local_skin_path() . '/hms_signature.css');
 
@@ -98,6 +97,14 @@ class hms_signature extends rcube_plugin
             'plaintext' => rcube_utils::get_input_value('_plaintext', rcube_utils::INPUT_POST),
         );
 
+        if (!empty($dataToSave['html'])) {
+            // replace uploaded images with data URIs
+            $dataToSave['html'] = $this->rcmail_attach_images($dataToSave['html']);
+
+            // XSS protection in HTML signature (#1489251)
+            $dataToSave['html'] = $this->rcmail_wash_html($dataToSave['html']);
+        }
+
         if (!($result = $this->_save($dataToSave))) {
             $this->rc->output->command('display_message', $this->gettext('successfullyupdated'), 'confirmation');
         }
@@ -127,7 +134,10 @@ class hms_signature extends rcube_plugin
             return;
         }
 
-        $table = new html_table(array('cols' => 2));
+        // Correctly handle HTML entities in HTML editor (#1488483)
+        $currentData['html'] = htmlspecialchars($currentData['html'], ENT_NOQUOTES, RCUBE_CHARSET);
+
+        $table = new html_table(array('cols' => 2, 'class' => 'propform'));
 
         $field_id = 'enabled';
         $input_enabled = new html_checkbox(array (
@@ -142,7 +152,8 @@ class hms_signature extends rcube_plugin
         $field_id = 'plaintext';
         $input_plaintext = new html_textarea(array (
                 'name' => '_plaintext',
-                'rows' => '5',
+                'rows' => '6',
+                'cols' => '40',
                 'id'   => $field_id
         ));
 
@@ -152,7 +163,10 @@ class hms_signature extends rcube_plugin
         $field_id = 'html';
         $input_html = new html_textarea(array (
                 'name' => '_html',
-                'rows' => '5',
+                'rows' => '6',
+                'cols' => '40',
+                'class' => 'mce_editor',
+                'is_escaped' => true,
                 'id'   => $field_id
         ));
 
@@ -169,18 +183,47 @@ class hms_signature extends rcube_plugin
         $form = $this->rc->output->form_tag(array(
             'id'     => 'signature-form',
             'name'   => 'signature-form',
+            'class'  => 'propform',
             'method' => 'post',
             'action' => './?_task=settings&_action=plugin.signature-save',
-        ), $table->show() . html::p(null, $submit_button));
+        ), $table->show());
+        
 
-        $out = html::div(array('class' => 'box'),
+        $out = html::div(array('class' => 'box hms'),
             html::div(array('id' => 'prefs-title', 'class' => 'boxtitle'), $this->gettext('changesignature'))
-            . html::div(array('class' => 'boxcontent'),
-                $form));
+            . html::div(array('class' => 'boxcontent'), $form)
+            . html::div(array('class' => 'footerleft formbuttons'), $submit_button));
 
         $this->rc->output->add_gui_object('signatureform', 'signature-form');
 
         $this->include_script('hms_signature.js');
+
+        if($this->rc->config->get('hms_signature_htmleditor', false)) {
+            // default font for HTML editor
+            $font = rcmail::font_defs($this->rc->config->get('default_font'));
+            if ($font && !is_array($font)) {
+                $this->rc->output->set_env('default_font', $font);
+            }
+
+            // default font size for HTML editor
+            if ($font_size = $this->rc->config->get('default_font_size')) {
+                $this->rc->output->set_env('default_font_size', $font_size);
+            }
+            
+
+            $this->rc->output->set_env('action', 'hms_signature');
+            $this->rc->html_editor();
+
+            // add image upload form
+            $max_filesize   = $this->rc->upload_init($this->rc->config->get('hms_signature_image_size', 64) * 1024);
+            $upload_form_id = 'signatureImageUpload';
+
+            $out .= '<form id="' . $upload_form_id . '" style="display: none">'
+                . html::div('hint', $this->rc->gettext(array('name' => 'maxuploadsize', 'vars' => array('size' => $max_filesize))))
+                . '</form>';
+
+            $this->rc->output->add_gui_object('uploadform', $upload_form_id);
+        }
 
         return $out;
     }
@@ -251,5 +294,65 @@ class hms_signature extends rcube_plugin
         }
 
         $this->driver = new $class;
+    }
+
+    /**
+     * Attach uploaded images into signature as data URIs
+     */
+    function rcmail_attach_images($html)
+    {
+        $offset = 0;
+        $regexp = '/\s(poster|src)\s*=\s*[\'"]*\S+upload-display\S+file=rcmfile(\w+)[\s\'"]*/';
+
+        while (preg_match($regexp, $html, $matches, 0, $offset)) {
+            $file_id  = $matches[2];
+            $data_uri = ' ';
+
+            if ($file_id && ($file = $_SESSION['plugin-signature']['files'][$file_id])) {
+                $file = $this->rc->plugins->exec_hook('attachment_get', $file);
+
+                $data_uri .= 'src="data:' . $file['mimetype'] . ';base64,';
+                $data_uri .= base64_encode($file['data'] ?: file_get_contents($file['path']));
+                $data_uri .= '" ';
+            }
+
+            $html    = str_replace($matches[0], $data_uri, $html);
+            $offset += strlen($data_uri) - strlen($matches[0]) + 1;
+        }
+
+        return $html;
+    }
+
+    /**
+     * Sanity checks/cleanups on HTML body of signature
+     */
+    function rcmail_wash_html($html)
+    {
+        // Add header with charset spec., washtml cannot work without that
+        $html = '<html><head>'
+            . '<meta http-equiv="Content-Type" content="text/html; charset='.RCUBE_CHARSET.'" />'
+            . '</head><body>' . $html . '</body></html>';
+
+        // clean HTML with washhtml by Frederic Motte
+        $wash_opts = array(
+            'show_washed'   => false,
+            'allow_remote'  => 1,
+            'charset'       => RCUBE_CHARSET,
+            'html_elements' => array('body', 'link'),
+            'html_attribs'  => array('rel', 'type'),
+        );
+
+        // initialize HTML washer
+        $washer = new rcube_washtml($wash_opts);
+
+        // Remove non-UTF8 characters (#1487813)
+        $html = rcube_charset::clean($html);
+
+        $html = $washer->wash($html);
+
+        // remove unwanted comments and tags (produced by washtml)
+        $html = preg_replace(array('/<!--[^>]+-->/', '/<\/?body>/'), '', $html);
+
+        return $html;
     }
 }
