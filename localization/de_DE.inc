@@ -3,7 +3,7 @@
 $labels = array();
 
 $labels['signature'] = 'Signatur';
-$labels['changesignature'] = 'Signature bearbeiten';
+$labels['changesignature'] = 'Signatur bearbeiten';
 
 $labels['enabled'] = 'Aktiviert';
 $labels['htmlsignature'] = 'HTML Signatur';
