@@ -1,0 +1,3 @@
+.listing.iconized li.signature > a::before {
+    content: "\f2bb";
+}

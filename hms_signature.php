@@ -3,10 +3,10 @@
 /**
  * hMailServer Signature Plugin for Roundcube
  *
- * @version 1.1
+ * @version 1.2
  * @author Andreas Tunberg <andreas@tunberg.com>
  *
- * Copyright (C) 2017, Andreas Tunberg
+ * Copyright (C) 2018, Andreas Tunberg
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,7 +69,7 @@ class hms_signature extends rcube_plugin
 
         return $args;
     }
-    
+
     function signature_init()
     {
         $this->rc = rcube::get_instance();
@@ -80,7 +80,7 @@ class hms_signature extends rcube_plugin
     function signature()
     {
         $this->signature_init();
-        
+
         $this->register_handler('plugin.body', array($this, 'signature_form'));
 
         $this->rc->output->send('plugin');
@@ -175,8 +175,7 @@ class hms_signature extends rcube_plugin
 
         $submit_button = $this->rc->output->button(array(
                 'command' => 'plugin.signature-save',
-                'type'    => 'input',
-                'class'   => 'button mainaction',
+                'class'   => 'button mainaction submit',
                 'label'   => 'save'
         ));
 
@@ -187,11 +186,10 @@ class hms_signature extends rcube_plugin
             'method' => 'post',
             'action' => './?_task=settings&_action=plugin.signature-save',
         ), $table->show());
-        
 
-        $out = html::div(array('class' => 'box hms'),
-            html::div(array('id' => 'prefs-title', 'class' => 'boxtitle'), $this->gettext('changesignature'))
-            . html::div(array('class' => 'boxcontent'), $form)
+        $out = html::div(array('id' => 'prefs-title', 'class' => 'boxtitle'), $this->gettext('changesignature'))
+            . html::div(array('class' => 'hms box formcontainer scroller'),
+                html::div(array('class' => 'boxcontent formcontent'), $form)
             . html::div(array('class' => 'footerleft formbuttons'), $submit_button));
 
         $this->rc->output->add_gui_object('signatureform', 'signature-form');
@@ -328,7 +326,7 @@ class hms_signature extends rcube_plugin
      */
     function rcmail_wash_html($html)
     {
-        // Add header with charset spec., washtml cannot work without that
+        // Add header with charset spec., washhtml cannot work without that
         $html = '<html><head>'
             . '<meta http-equiv="Content-Type" content="text/html; charset='.RCUBE_CHARSET.'" />'
             . '</head><body>' . $html . '</body></html>';

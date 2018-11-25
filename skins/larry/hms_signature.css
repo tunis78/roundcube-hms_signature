@@ -6,6 +6,10 @@
     background-position: 6px -743px;
 }
 
+#signature-form input {
+    width: auto;
+}
+
 #signature-form textarea {
     resize: both;
     width: 99%;
@@ -16,7 +20,7 @@
     height: 100%;
 }
 
-.hms.box .boxcontent{
+.hms.box .boxcontent {
     overflow: auto;
     max-height: calc(100% - 86px);
 }

@@ -1,3 +1,7 @@
+#signature-form input {
+    width: auto;
+}
+
 #signature-form textarea {
     resize: both;
     width: 99%;
