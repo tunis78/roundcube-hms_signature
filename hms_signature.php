@@ -3,7 +3,7 @@
 /**
  * hMailServer Signature Plugin for Roundcube
  *
- * @version 1.2
+ * @version 1.3
  * @author Andreas Tunberg <andreas@tunberg.com>
  *
  * Copyright (C) 2018, Andreas Tunberg

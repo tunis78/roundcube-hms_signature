@@ -3,7 +3,7 @@
 /**
  * hMailserver signature driver
  *
- * @version 1.0
+ * @version 1.1
  * @author Andreas Tunberg <andreas@tunberg.com>
  *
  * Copyright (C) 2017, Andreas Tunberg
@@ -68,9 +68,23 @@ class rcube_hmail_signature
 
         $password = $rcmail->decrypt($_SESSION['password']);
 
-        $obApp->Authenticate($username, $password);
+        $obDomain = $obApp->Authenticate($username, $password);
+        $obDomainName = null;
         try {
-            $obAccount = $obApp->Domains->ItemByName($domain)->Accounts->ItemByAddress($username);
+            $obDomainName = $obApp->Domains->ItemByName($domain)->Name;
+        } catch (Exception $e) {
+            $obDomainName = $obApp->Domains->ItemByDBID($obDomain->DomainID)->Name;
+            $temparr = explode('@', $username);
+            $username = $temparr[0] . '@' . $obDomainName;
+        }
+
+        if (!$obDomainName) {
+            rcube::write_log('errors', 'Plugin hms_signature (hmail driver): No domain or alias found.');
+            return HMS_ERROR;
+        }
+
+        try {
+            $obAccount = $obApp->Domains->ItemByName($obDomainName)->Accounts->ItemByAddress($username);
 
             switch($data['action']){
                 case 'signature_load':
