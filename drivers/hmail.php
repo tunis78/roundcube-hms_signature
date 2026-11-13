@@ -3,10 +3,10 @@
 /**
  * hMailserver signature driver
  *
- * @version 1.1
+ * @version 1.2
  * @author Andreas Tunberg <andreas@tunberg.com>
  *
- * Copyright (C) 2017, Andreas Tunberg
+ * Copyright (C) 2026, Andreas Tunberg
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,11 +53,7 @@ class rcube_hmail_signature
         }
 
         $username = $rcmail->user->data['username'];
-        if (strstr($username, '@')){
-            $temparr = explode('@', $username);
-            $domain = $temparr[1];
-        }
-        else {
+        if (!strstr($username, '@')){
             $domain = $rcmail->config->get('username_domain', false);
             if (!$domain) {
                 rcube::write_log('errors', 'Plugin hms_signature (hmail driver): $config[\'username_domain\'] is not defined.');
@@ -68,23 +64,8 @@ class rcube_hmail_signature
 
         $password = $rcmail->decrypt($_SESSION['password']);
 
-        $obDomain = $obApp->Authenticate($username, $password);
-        $obDomainName = null;
         try {
-            $obDomainName = $obApp->Domains->ItemByName($domain)->Name;
-        } catch (Exception $e) {
-            $obDomainName = $obApp->Domains->ItemByDBID($obDomain->DomainID)->Name;
-            $temparr = explode('@', $username);
-            $username = $temparr[0] . '@' . $obDomainName;
-        }
-
-        if (!$obDomainName) {
-            rcube::write_log('errors', 'Plugin hms_signature (hmail driver): No domain or alias found.');
-            return HMS_ERROR;
-        }
-
-        try {
-            $obAccount = $obApp->Domains->ItemByName($obDomainName)->Accounts->ItemByAddress($username);
+            $obAccount = $obApp->Authenticate($username, $password);
 
             switch($data['action']){
                 case 'signature_load':

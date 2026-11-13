@@ -36,6 +36,9 @@ See config.inc.php.dist file for more info.
 
 Changelog
 ---------
+Version 1.4 (2026-11-13)
+- Cleaned the drivers code
+
 Version 1.3 (2026-11-10)
 - Fix to work with domainalias
 
