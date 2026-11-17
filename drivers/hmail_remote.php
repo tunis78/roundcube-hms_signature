@@ -102,7 +102,7 @@ class rcube_hmail_remote_signature
         else
             $return = 'Curl error: ' . curl_error($ch);
 
-        curl_close($ch);
+        unset($ch);
         return $return;
     }
 }

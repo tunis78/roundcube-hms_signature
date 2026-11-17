@@ -11,6 +11,6 @@ $messages['successfullyupdated'] = 'Signaturen har uppdaterats.';
 $messages['internalerror'] = 'Fel uppstod i vald åtgärd.';
 //$messages['connecterror'] = $messages['internalerror'] . ' Uppkopplingsfel.';
 $messages['loaderror'] = 'Kunde inte ladda signaturen.';
-$messages['loadconnecterror'] = $messages['loadinternalerror'] . ' Uppkopplingsfel.';
+$messages['loadconnecterror'] = $messages['loaderror'] . ' Uppkopplingsfel.';
 $messages['updateerror'] = 'Kunde inte uppdatera signaturen.';
 $messages['updateconnecterror'] = $messages['updateerror'] . ' Connection error.';

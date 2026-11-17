@@ -14,6 +14,6 @@ $messages['successfullyupdated'] = 'Signature has successfully update.';
 $messages['internalerror'] = 'Error with selected action.';
 //$messages['connecterror'] = $messages['internalerror'] . ' Connection error.';
 $messages['loaderror'] = 'Could not load signature.';
-$messages['loadconnecterror'] = $messages['loadinternalerror'] . ' Connection error.';
+$messages['loadconnecterror'] = $messages['loaderror'] . ' Connection error.';
 $messages['updateerror'] = 'Could not update external account.';
 $messages['updateconnecterror'] = $messages['updateerror'] . ' Connection error.';
